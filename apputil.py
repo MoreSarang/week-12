@@ -6,8 +6,58 @@ import matplotlib.pyplot as plt
 
 
 def update_board(current_board):
-    # your code here ...
-    updated_board = current_board
+    """
+    Execute one step of Conway's Game of Life.
+    
+    Rules:
+    - Any live cell with 2-3 neighbors survives
+    - Any dead cell with exactly 3 neighbors becomes alive
+    - All other cells die or stay dead
+    
+    Parameters
+    ----------
+    current_board : numpy.ndarray
+        Binary array where 1 represents living cells and 0 represents dead cells
+        
+    Returns
+    -------
+    numpy.ndarray
+        Updated board state after one generation
+    """
+    rows, cols = current_board.shape
+    updated_board = np.zeros_like(current_board)
+    
+    # Iterate through each cell
+    for i in range(rows):
+        for j in range(cols):
+            # Count living neighbors (8 surrounding cells)
+            # Handle boundary conditions by using modulo for toroidal wrap
+            neighbor_count = 0
+            
+            for di in [-1, 0, 1]:
+                for dj in [-1, 0, 1]:
+                    # Skip the cell itself
+                    if di == 0 and dj == 0:
+                        continue
+                    
+                    # Use modulo for toroidal boundary conditions
+                    ni = (i + di) % rows
+                    nj = (j + dj) % cols
+                    neighbor_count += current_board[ni, nj]
+            
+            # Apply Conway's Game of Life rules
+            if current_board[i, j] == 1:
+                # Cell is alive
+                if neighbor_count in [2, 3]:
+                    updated_board[i, j] = 1
+                else:
+                    updated_board[i, j] = 0
+            else:
+                # Cell is dead
+                if neighbor_count == 3:
+                    updated_board[i, j] = 1
+                else:
+                    updated_board[i, j] = 0
 
     return updated_board
 
