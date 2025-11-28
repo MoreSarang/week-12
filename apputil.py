@@ -7,57 +7,41 @@ import matplotlib.pyplot as plt
 
 def update_board(current_board):
     """
-    Execute one step of Conway's Game of Life.
-    
-    Rules:
-    - Any live cell with 2-3 neighbors survives
-    - Any dead cell with exactly 3 neighbors becomes alive
-    - All other cells die or stay dead
-    
+    Execute one step of Conway's Game of Life on a finite grid
+    without wrapping at the edges.
+
     Parameters
     ----------
     current_board : numpy.ndarray
-        Binary array where 1 represents living cells and 0 represents dead cells
-        
+        Binary array where 1 represents living cells and 0 represents dead cells.
+
     Returns
     -------
     numpy.ndarray
-        Updated board state after one generation
+        Updated board state after one generation.
     """
     rows, cols = current_board.shape
     updated_board = np.zeros_like(current_board)
-    
-    # Iterate through each cell
+
     for i in range(rows):
         for j in range(cols):
-            # Count living neighbors (8 surrounding cells)
-            # Handle boundary conditions by using modulo for toroidal wrap
-            neighbor_count = 0
-            
-            for di in [-1, 0, 1]:
-                for dj in [-1, 0, 1]:
-                    # Skip the cell itself
+            # count live neighbours, skipping out-of-bounds indices
+            neighbour_count = 0
+            for di in (-1, 0, 1):
+                for dj in (-1, 0, 1):
                     if di == 0 and dj == 0:
                         continue
-                    
-                    # Use modulo for toroidal boundary conditions
-                    ni = (i + di) % rows
-                    nj = (j + dj) % cols
-                    neighbor_count += current_board[ni, nj]
-            
-            # Apply Conway's Game of Life rules
+                    ni = i + di
+                    nj = j + dj
+                    if 0 <= ni < rows and 0 <= nj < cols:
+                        neighbour_count += current_board[ni, nj]
+
             if current_board[i, j] == 1:
-                # Cell is alive
-                if neighbor_count in [2, 3]:
-                    updated_board[i, j] = 1
-                else:
-                    updated_board[i, j] = 0
+                # live cell survives with 2 or 3 neighbours
+                updated_board[i, j] = 1 if neighbour_count in (2, 3) else 0
             else:
-                # Cell is dead
-                if neighbor_count == 3:
-                    updated_board[i, j] = 1
-                else:
-                    updated_board[i, j] = 0
+                # dead cell becomes live with exactly 3 neighbours
+                updated_board[i, j] = 1 if neighbour_count == 3 else 0
 
     return updated_board
 
